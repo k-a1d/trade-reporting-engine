@@ -1,16 +1,19 @@
 package com.van.trade_reporting_engine.model.event;
 
 import jakarta.xml.bind.annotation.XmlAccessorType;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 
 import static jakarta.xml.bind.annotation.XmlAccessType.FIELD;
 
+@Data
+@NoArgsConstructor
 @XmlAccessorType(FIELD)
-public record VarianceOptionTransactionSupplement(
-    PartyReference buyerPartyReference,
-    PartyReference sellerPartyReference,
-    String optionType,
-    EquityPremium equityPremium,
-    EquityExercise equityExercise,
-    VarianceSwapTransactionSupplement varianceSwapTransactionSupplement
-) {
+public final class VarianceOptionTransactionSupplement {
+    private PartyReference buyerPartyReference;
+    private PartyReference sellerPartyReference;
+    private String optionType;
+    private EquityPremium equityPremium;
+    private EquityExercise equityExercise;
+    private VarianceSwapTransactionSupplement varianceSwapTransactionSupplement;
 }

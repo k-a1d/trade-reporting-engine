@@ -1,12 +1,15 @@
 package com.van.trade_reporting_engine.model.event;
 
 import jakarta.xml.bind.annotation.XmlAccessorType;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 
 import static jakarta.xml.bind.annotation.XmlAccessType.FIELD;
 
+@Data
+@NoArgsConstructor
 @XmlAccessorType(FIELD)
-public record Amount(
-    ObservationStartDate observationStartDate,
-    Variance variance
-) {
+public final class Amount {
+    private ObservationStartDate observationStartDate;
+    private Variance variance;
 }

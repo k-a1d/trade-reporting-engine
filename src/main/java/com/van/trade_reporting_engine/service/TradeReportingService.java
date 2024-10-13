@@ -1,5 +1,6 @@
 package com.van.trade_reporting_engine.service;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.van.trade_reporting_engine.model.TradeReport;
 import com.van.trade_reporting_engine.model.api.TradeReportResponse;
 import com.van.trade_reporting_engine.model.event.RequestConfirmation;
@@ -8,41 +9,47 @@ import com.van.trade_reporting_engine.repository.TradeReportingRepository;
 import jakarta.annotation.PostConstruct;
 import lombok.RequiredArgsConstructor;
 import lombok.SneakyThrows;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
-import reactor.core.publisher.Flux;
-import reactor.core.publisher.Mono;
-import reactor.core.scheduler.Schedulers;
+
+import java.io.File;
+import java.net.URI;
 
 import static com.van.trade_reporting_engine.util.FileUtil.readFiles;
 
 @Service
 @RequiredArgsConstructor
+@Slf4j
 public class TradeReportingService {
 
-    private final static String REPORT_PATH = "xml";
+    private static final String REPORT_PATH = "xml";
 
     private final XmlFileParser<RequestConfirmation> fileParser;
     private final TradeReportingRepository repository;
+    private final ObjectMapper objectMapper;
 
     @PostConstruct
     private void postConstruct() {
-        parseTradeReports().
-            subscribeOn(Schedulers.boundedElastic());
+        parseTradeReports();
     }
 
-    public Mono<TradeReportResponse> getTradeReportById(String id) {
+    public TradeReportResponse getTradeReportById(String id) {
         return repository.findById(id)
-            .map(this::buildTradeReportResponse);
+            .map(this::buildTradeReportResponse)
+            .orElse(null);
     }
 
     @SneakyThrows
-    public Flux<TradeReport> parseTradeReports() {
-        var resource = getClass().getClassLoader().getResource(REPORT_PATH).toURI();
-        var files = readFiles(resource);
-        return Flux.just(files)
-            .map(fileParser::parse)
-            .flatMap(repository::save)
-            .doOnError(Exception.class, Throwable::getCause);
+    private void parseTradeReports() {
+        URI resource = getClass().getClassLoader().getResource(REPORT_PATH).toURI();
+        File[] files = readFiles(resource);
+
+        for (File file : files) {
+            RequestConfirmation requestConfirmation = fileParser.parse(file);
+            TradeReport tradeReport = buildTradeReport(requestConfirmation);
+            repository.save(tradeReport);
+        }
+        log.info("All reports saved");
     }
 
     private TradeReportResponse buildTradeReportResponse(TradeReport tradeReport) {
@@ -50,4 +57,14 @@ public class TradeReportingService {
             .build();
     }
 
+    @SneakyThrows
+    private TradeReport buildTradeReport(RequestConfirmation requestConfirmation) {
+        return TradeReport.builder()
+            .buyerParty(requestConfirmation.getBuyerParty())
+            .sellerParty(requestConfirmation.getSellerParty())
+            .amount(requestConfirmation.getAmount())
+            .currency(requestConfirmation.getCurrency())
+            .requestConfirmation(objectMapper.writeValueAsString(requestConfirmation))
+            .build();
+    }
 }

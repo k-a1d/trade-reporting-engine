@@ -8,7 +8,6 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
-import reactor.core.publisher.Mono;
 
 @RestController
 @RequestMapping("/v1/trade")
@@ -17,20 +16,14 @@ public class TradeReportingController {
 
     private final TradeReportingService tradeReportingService;
 
-//    @GetMapping("/reports")
-//    public Mono<TradeReportResponse> getTradeReport(@RequestParam String buyerParty,
-//                                                    @RequestParam String sellerParty,
-//                                                    @RequestParam float amount,
-//                                                    @RequestParam String currency
-//    ) {
-//        return tradeReportingService.getTradeReport();
-//    }
-
     @GetMapping("/reports")
-    public Mono<ResponseEntity<TradeReportResponse>> getTradeReport(@RequestParam String id) {
-        return tradeReportingService.getTradeReportById(id)
-            .map(ResponseEntity::ok)
-            .defaultIfEmpty(ResponseEntity.badRequest().build());
+    public ResponseEntity<TradeReportResponse> getTradeReport(@RequestParam String id) {
+        TradeReportResponse response = tradeReportingService.getTradeReportById(id);
+        if (response != null) {
+            return ResponseEntity.ok(response);
+        } else {
+            return ResponseEntity.badRequest().build();
+        }
     }
 
 }
