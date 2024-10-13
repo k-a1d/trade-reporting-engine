@@ -1,4 +1,4 @@
-package com.van.trade_reporting_engine.model;
+package com.van.trade_reporting_engine.model.data;
 
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;

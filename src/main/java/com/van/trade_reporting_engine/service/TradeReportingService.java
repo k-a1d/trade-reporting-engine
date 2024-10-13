@@ -1,8 +1,8 @@
 package com.van.trade_reporting_engine.service;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.van.trade_reporting_engine.model.TradeReport;
 import com.van.trade_reporting_engine.model.api.TradeReportResponse;
+import com.van.trade_reporting_engine.model.data.TradeReport;
 import com.van.trade_reporting_engine.model.event.RequestConfirmation;
 import com.van.trade_reporting_engine.parser.XmlFileParser;
 import com.van.trade_reporting_engine.repository.TradeReportingRepository;
@@ -30,6 +30,7 @@ public class TradeReportingService {
 
     @PostConstruct
     private void postConstruct() {
+        // Initialise DB with trade reports
         parseTradeReports();
     }
 
@@ -49,7 +50,7 @@ public class TradeReportingService {
             TradeReport tradeReport = buildTradeReport(requestConfirmation);
             repository.save(tradeReport);
         }
-        log.info("All reports saved");
+        log.info("Reports successfully saved");
     }
 
     private TradeReportResponse buildTradeReportResponse(TradeReport tradeReport) {
