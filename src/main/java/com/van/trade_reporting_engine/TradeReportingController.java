@@ -1,5 +1,6 @@
 package com.van.trade_reporting_engine;
 
+import com.van.trade_reporting_engine.model.api.TradeReportRequest;
 import com.van.trade_reporting_engine.model.api.TradeReportResponse;
 import com.van.trade_reporting_engine.service.TradeReportingService;
 import lombok.RequiredArgsConstructor;
@@ -17,26 +18,20 @@ public class TradeReportingController {
     private final TradeReportingService tradeReportingService;
 
     @GetMapping("/reports")
-    public ResponseEntity<TradeReportResponse> getTradeReportById(@RequestParam String id) {
-        TradeReportResponse response = tradeReportingService.getTradeReportById(id);
-        if (response != null) {
-            return ResponseEntity.ok(response);
-        } else {
-            return ResponseEntity.badRequest().build();
-        }
-    }
+    public ResponseEntity<TradeReportResponse> getTradeReport(@RequestParam String buyerParty,
+                                                              @RequestParam String sellerParty,
+                                                              @RequestParam double amount,
+                                                              @RequestParam String currency) {
+        var request = TradeReportRequest.builder()
+            .buyerParty(buyerParty)
+            .sellerParty(sellerParty)
+            .amount(amount)
+            .currency(currency)
+            .build();
 
-//    @GetMapping("/reports")
-//    public ResponseEntity<TradeReportResponse> getTradeReport(@RequestParam String buyerParty,
-//                                                              @RequestParam String sellerParty,
-//                                                              @RequestParam double amount,
-//                                                              @RequestParam String currency) {
-//        TradeReportResponse response = tradeReportingService.getTradeReportById(id);
-//        if (response != null) {
-//            return ResponseEntity.ok(response);
-//        } else {
-//            return ResponseEntity.badRequest().build();
-//        }
-//    }
+        return tradeReportingService.getFilteredTradeReport(request)
+            .map(ResponseEntity::ok)
+            .orElseGet(() -> ResponseEntity.notFound().build());
+    }
 
 }

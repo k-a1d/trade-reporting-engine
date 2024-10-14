@@ -1,7 +1,8 @@
 package com.van.trade_reporting_engine.service;
 
-import ch.qos.logback.core.encoder.JsonEscapeUtil;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.van.trade_reporting_engine.filter.TradeReportFilterChain;
+import com.van.trade_reporting_engine.model.api.TradeReportRequest;
 import com.van.trade_reporting_engine.model.api.TradeReportResponse;
 import com.van.trade_reporting_engine.model.data.TradeReport;
 import com.van.trade_reporting_engine.model.event.RequestConfirmation;
@@ -15,6 +16,7 @@ import org.springframework.stereotype.Service;
 
 import java.io.File;
 import java.net.URI;
+import java.util.Optional;
 
 import static com.van.trade_reporting_engine.util.FileUtil.readFiles;
 
@@ -23,7 +25,7 @@ import static com.van.trade_reporting_engine.util.FileUtil.readFiles;
 @Slf4j
 public class TradeReportingService {
 
-    private static final String REPORT_PATH = "xml";
+    private static final String REPORT_DIRECTORY = "xml";
 
     private final XmlFileParser<RequestConfirmation> fileParser;
     private final TradeReportingRepository repository;
@@ -35,15 +37,16 @@ public class TradeReportingService {
         parseTradeReports();
     }
 
-    public TradeReportResponse getTradeReportById(String id) {
-        return repository.findById(id)
-            .map(this::buildTradeReportResponse)
-            .orElse(null);
+    public Optional<TradeReportResponse> getFilteredTradeReport(TradeReportRequest request) {
+        return repository.findByBuyerPartyAndSellerPartyAndAmountAndCurrency(request.getBuyerParty(),
+                request.getSellerParty(), request.getAmount(), request.getCurrency())
+            .map(TradeReportFilterChain::filter)
+            .map(this::buildTradeReportResponse);
     }
 
     @SneakyThrows
     private void parseTradeReports() {
-        URI resource = getClass().getClassLoader().getResource(REPORT_PATH).toURI();
+        URI resource = getClass().getClassLoader().getResource(REPORT_DIRECTORY).toURI();
         File[] files = readFiles(resource);
 
         for (File file : files) {

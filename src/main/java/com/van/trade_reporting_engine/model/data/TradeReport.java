@@ -29,5 +29,6 @@ public final class TradeReport {
     private String currency;
 
     @Lob
-    private String requestConfirmation;
+    private String requestConfirmation; // Storing as CLOB to avoid managing too many tables
+
 }
