@@ -4,20 +4,30 @@ import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.Id;
 import jakarta.persistence.Lob;
+import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
 @Entity
 @Builder
 @Data
+@AllArgsConstructor
+@NoArgsConstructor
 public final class TradeReport {
+
     @Id
     @GeneratedValue
-    private final Long id;
-    private final String buyerParty;
-    private final String sellerParty;
-    private final double amount;
-    private final String currency;
+    private Long id;
+
+    private String buyerParty;
+
+    private String sellerParty;
+
+    private double amount;
+
+    private String currency;
+
     @Lob
-    private final String requestConfirmation;
+    private String requestConfirmation;
 }

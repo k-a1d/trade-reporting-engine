@@ -1,5 +1,6 @@
 package com.van.trade_reporting_engine.service;
 
+import ch.qos.logback.core.encoder.JsonEscapeUtil;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.van.trade_reporting_engine.model.api.TradeReportResponse;
 import com.van.trade_reporting_engine.model.data.TradeReport;
@@ -53,8 +54,10 @@ public class TradeReportingService {
         log.info("Reports successfully saved");
     }
 
+    @SneakyThrows
     private TradeReportResponse buildTradeReportResponse(TradeReport tradeReport) {
         return TradeReportResponse.builder()
+            .responseBody(objectMapper.readTree(tradeReport.getRequestConfirmation()))
             .build();
     }
 

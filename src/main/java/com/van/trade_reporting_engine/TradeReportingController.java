@@ -17,7 +17,7 @@ public class TradeReportingController {
     private final TradeReportingService tradeReportingService;
 
     @GetMapping("/reports")
-    public ResponseEntity<TradeReportResponse> getTradeReport(@RequestParam String id) {
+    public ResponseEntity<TradeReportResponse> getTradeReportById(@RequestParam String id) {
         TradeReportResponse response = tradeReportingService.getTradeReportById(id);
         if (response != null) {
             return ResponseEntity.ok(response);
@@ -25,5 +25,18 @@ public class TradeReportingController {
             return ResponseEntity.badRequest().build();
         }
     }
+
+//    @GetMapping("/reports")
+//    public ResponseEntity<TradeReportResponse> getTradeReport(@RequestParam String buyerParty,
+//                                                              @RequestParam String sellerParty,
+//                                                              @RequestParam double amount,
+//                                                              @RequestParam String currency) {
+//        TradeReportResponse response = tradeReportingService.getTradeReportById(id);
+//        if (response != null) {
+//            return ResponseEntity.ok(response);
+//        } else {
+//            return ResponseEntity.badRequest().build();
+//        }
+//    }
 
 }
